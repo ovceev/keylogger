@@ -4,15 +4,17 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ilia Kovalev");
-MODULE_DESCRIPTION("keylogger for the test task");
+MODULE_DESCRIPTION("keylogger for a test task");
 
 
 
 static int keylogger_init(void) {
+    printk("Hello\n");
     return 0;
 }
 
 static void keylogger_exit(void) {
+    printk("Bye\n");
     return;
 }
 
