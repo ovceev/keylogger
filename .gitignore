@@ -5,4 +5,4 @@
 *.mod.o
 *.o
 *.order
-
+*.ko
