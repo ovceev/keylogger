@@ -3,7 +3,7 @@
 
 The task is to write a linux kernel module for keylogging. Next step is to get around the SElinux policy
 
-## Installation
+## Installation and usage
 
 Install the dependencies
 ```sh
